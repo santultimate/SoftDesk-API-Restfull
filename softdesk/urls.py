@@ -14,7 +14,9 @@ def api_root(request):
     })
 
 urlpatterns = [
+    path('api/', include('projects.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    path('api/', include('users.urls')),  # Ajouter l'API users
     path('', api_root),  # Ajout de la route pour "/"
 ]
