@@ -2,7 +2,8 @@ from rest_framework import viewsets  # type: ignore
 from softdesk.models import Project, Issue, Comment, Contributor
 from softdesk.serializers import ProjectSerializer, IssueSerializer, CommentSerializer, ContributorSerializer
 from softdesk.pagination import CustomPagination
-from softdesk.permissions import IsProjectAuthor, IsContributorOrReadOnly, IsAuthorOrReadOnly
+from projects.permissions import IsProjectAuthor, IsContributorOrReadOnly, IsAuthorOrReadOnly
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """

@@ -3,7 +3,9 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Project, Contributor
 from .serializers import ProjectSerializer, ContributorSerializer
 from softdesk.pagination import CustomPagination
-from ..softdesk.permissions import IsProjectAuthor, IsContributorOrReadOnly
+from .permissions import IsProjectAuthor, IsContributorOrReadOnly
+
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
