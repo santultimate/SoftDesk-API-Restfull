@@ -1,13 +1,12 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from api.views import ProjectViewSet, IssueViewSet, CommentViewSet  # Correction ici
-
-router = DefaultRouter()
-router.register(r'projects', ProjectViewSet)
-router.register(r'issues', IssueViewSet)
-router.register(r'comments', CommentViewSet)
+from django.contrib import admin 
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('admin/', admin.site.urls),
+    path('api/', include('users.urls')),
+    path('api/', include('projects.urls')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 # Compare this snippet from softdesk/views.py:
