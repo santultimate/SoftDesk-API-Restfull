@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
-
 class CustomUserManager(BaseUserManager):
     """Manager personnalisé pour le modèle CustomUser"""
     
@@ -19,7 +18,6 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         
         return self.create_user(email, password, **extra_fields)
-
 
 class CustomUser(AbstractUser):
     """Modèle personnalisé d'utilisateur"""
@@ -48,7 +46,6 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
-
 
 class Comment(models.Model):
     """Modèle pour les commentaires"""
