@@ -1,60 +1,23 @@
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
-from django.contrib.auth import authenticate
+from rest_framework import viewsets, serializers
+from rest_framework.permissions import AllowAny 
 from .models import CustomUser
-from .serializers import UserSerializer, LoginSerializer
+from .serializers import UserSerializer
 
-
-class RegisterView(generics.CreateAPIView):
-    """
-    Vue pour l'inscription des utilisateurs.
-    """
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-class LoginView(APIView):
-    """
-    Vue pour l'authentification et la génération du token.
-    """
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        email = serializer.validated_data['email']
-        password = serializer.validated_data['password']
-        user = authenticate(request, email=email, password=password)
-
-        if user:
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({"token": token.key, "user_id": user.id})
-        return Response({"error": "Invalid Credentials"}, status=400)
-
-
-class UserDetailView(generics.RetrieveUpdateAPIView):
-    """
-    Vue pour récupérer et mettre à jour les informations d'un utilisateur.
-    """
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
-
-
-class LogoutView(APIView):
-    """
-    Vue pour la déconnexion.
-    Supprime le token d'authentification.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        request.auth.delete()
-        return Response({"message": "Déconnexion réussie"})
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all().order_by('username')
+    serializer_class = UserSerializer  
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            self.permission_classes = [AllowAny]
+        return super().get_permissions()
+    
+    def perform_create(self, serializer):
+        age = serializer.validated_data.get('age',None)
+        if age is not None and age < 18:
+            raise serializers.ValidationError("L'âge doit être supérieur ou égal à 18 ans.")
+        serializer.save()
+        
+        
+        
+    

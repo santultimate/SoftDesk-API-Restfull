@@ -2,7 +2,6 @@ from django.urls import path, include
 from .views import ProjectViewSet, ContributorViewSet, IssueViewSet, CommentViewSet
 from rest_framework_nested import routers
 
-
 router = routers.SimpleRouter()
 router.register(r'projects', ProjectViewSet, basename="projects")
 
