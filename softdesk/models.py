@@ -39,7 +39,7 @@ class Contributor(models.Model):
 
 class Issue(models.Model):
     PRIORITY_CHOICES = [('LOW', 'LOW'), ('MEDIUM', 'MEDIUM'), ('HIGH', 'HIGH')]
-    STATUS_CHOICES = [('To Do', 'To Do'), ('In Progress', 'In Progress'), ('Finished', 'Finished')]
+    STATUS_CHOICES = [('TODO', 'To Do'), ('INPROGRESS', 'In Progress'), ('FINISHED', 'Finished')]
     TAG_CHOICES = [('BUG', 'BUG'), ('FEATURE', 'FEATURE'), ('TASK', 'TASK')]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="issues")
