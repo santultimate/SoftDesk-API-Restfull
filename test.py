@@ -154,7 +154,7 @@ def test_edit_issue(token,project_id,issue_id):
     
 def test_delete_issue(token,project_id,issue_id):
     response = requests.delete(BASE_URL + f"projects/{project_id}/issues/{issue_id}/", headers={"Authorization": f"Bearer {token}"})
-    if response.status_code == 200:
+    if response.status_code == 204:
         print_response(response,True)
         return True
     else:
@@ -179,7 +179,7 @@ def test_delete_comment(token, project_id, issue_id, comment_id):
         BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/{comment_id}/",
         headers={"Authorization": f"Bearer {token}"}
     )
-    if response.status_code == 200:
+    if response.status_code == 204:
         print_response(response, True)
         return True
     else:
@@ -253,8 +253,6 @@ def main():
     # 1️⃣3️⃣ Supprimer une issue
     print(Fore.MAGENTA + "🟢 Test: Suppression d'une issue...")
     test_delete_issue(token, project_id, issue_id)
-
-    print(Fore.BLUE + "\n=== Fin des tests ===\n")
 
 
 if __name__ == "__main__":
