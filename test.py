@@ -61,6 +61,8 @@ def test_list_users(token):
     response = requests.get(BASE_URL + "users/", headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
         print_response(response,True)
+        for result in response.json()["results"]:
+            print(result["username"])
     else:
         print_response(response,False)
         return None
@@ -91,10 +93,10 @@ def test_add_contributor(token,project_id,user_id):
     response = requests.post(BASE_URL + f"projects/{project_id}/contributors/", json={"user":user_id,"role":"CONTRIBUTOR"}, headers
     ={"Authorization": f"Bearer {token}"})
     if response.status_code == 201:
-        print_response(response,True)
+        #print_response(response,True)
         return True 
     else:
-        print_response(response,False)
+        #print_response(response,False)
         return False
     
 def test_create_issue(token,project_id):
@@ -116,7 +118,7 @@ def test_list_issues_for_project(token,project_id):
         print_response(response,False)
 
 def test_create_comment(token,project_id,issue_id):
-    response = requests.post(BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/", json=TEST_COMMENT, headers={"Authorization": f"Bearer {token}"})
+    response = requests.post(BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/", json=TEST_COMMENT.copy(), headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 201:
         print_response(response,True)
         return response.json().get("id")
@@ -132,9 +134,16 @@ def test_list_comments_for_issue(token,project_id,issue_id):
         print_response(response,False)
         
 def test_edit_issue(token,project_id,issue_id):
-    issue=TEST_ISSUE.copy()
-    issue["title"]="New title"
-    response = requests.put(BASE_URL + f"projects/{project_id}/issues/{issue_id}/", json=issue, headers
+    data={
+        "title":"New title",
+        "description":"New description",
+        "priority":"HIGH",
+        "tag":"FEATURE",
+        "status":"INPROGRESS",
+        "assignee":1
+        }
+    
+    response = requests.put(BASE_URL + f"projects/{project_id}/issues/{issue_id}/", json=data, headers
     ={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
         print_response(response,True)
@@ -145,7 +154,7 @@ def test_edit_issue(token,project_id,issue_id):
     
 def test_delete_issue(token,project_id,issue_id):
     response = requests.delete(BASE_URL + f"projects/{project_id}/issues/{issue_id}/", headers={"Authorization": f"Bearer {token}"})
-    if response.status_code == 204:
+    if response.status_code == 200:
         print_response(response,True)
         return True
     else:
@@ -153,9 +162,10 @@ def test_delete_issue(token,project_id,issue_id):
         return False    
     
 def test_edit_comment(token,project_id,issue_id,comment_id):
-    comment=TEST_COMMENT.copy()
-    comment["description"]="New description"
-    response = requests.put(BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/{comment_id}/", json=comment, headers
+    data={
+        "description":"New comment"
+        }
+    response = requests.put(BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/{comment_id}/", json=data, headers
     ={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
         print_response(response,True)
@@ -169,7 +179,7 @@ def test_delete_comment(token, project_id, issue_id, comment_id):
         BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/{comment_id}/",
         headers={"Authorization": f"Bearer {token}"}
     )
-    if response.status_code == 204:
+    if response.status_code == 200:
         print_response(response, True)
         return True
     else:
@@ -179,10 +189,11 @@ def test_delete_comment(token, project_id, issue_id, comment_id):
 
 
 def main():
-    print(Fore.BLUE + "\n=== Début des tests ===\n")
 
     # 1️⃣ Créer un utilisateur
     print(Fore.MAGENTA + "🟢 Test: Création d'un utilisateur...")
+    TEST_USER["username"] = input("Entrez un nom d'utilisateur: ")
+    TEST_USER["password"] = input("Entrez le mot de pass: ")
     user_id = test_create_user()
     if not user_id:
         return
@@ -248,7 +259,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# Compare this snippet from softdesk/permissions.py:
-# from rest_framework import permissions
-#
-# class IsAuthorOrReadOnly(permissions.BasePermission):
