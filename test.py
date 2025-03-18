@@ -1,15 +1,15 @@
 import requests
+import getpass
 from colorama import Fore, Style, init
 
 init(autoreset=True)
 BASE_URL = "http://localhost:8000/api/"
-TEST_USER = {
-    "username": "testuser",
-    "password": "test123*",
-    "email": "yacouba.santara@yahoo.fr",
-    "age": 25,
-    "phone": "+33612345678"
-}
+TEST_USER = [
+    {"username": "testuser","password": "testuser","email": "yacouba.santara@yahoo.fr","age": 25,"phone": "+33612345678"},
+    {"username": "alice", "password": "passAlice123*", "email": "alice@example.com", "age": 30, "phone": "+33611112222"},
+    {"username": "bob", "password": "passBob123*", "email": "bob@example.com", "age": 28, "phone": "+33633334444"},
+    {"username": "charlie", "password": "passCharlie123*", "email": "charlie@example.com", "age": 35, "phone": "+33655556666"}
+]
 
 TEST_PROJECT = {
     "name": "Test project",
@@ -39,33 +39,33 @@ def print_response(response,result):
         print(Fore.CYAN + f"Response:{response.text}")
 
 
-def test_create_user():
-    response = requests.post(BASE_URL + "users/", json=TEST_USER)
+def test_create_user(user_data):
+    response = requests.post(BASE_URL + "users/", json=user_data)
     if response.status_code == 201:
-        print_response(response,True)
+        print(Fore.GREEN + f"Utilisateur {user_data['username']} créé avec succès.")
         return response.json().get("id")
     else:
-        print_response(response,False)
+        print(Fore.RED + f"Échec de la création de {user_data['username']}: {response.text}")
         return None
 
-def test_request_token():
-    response = requests.post(BASE_URL + "token/", json={"username": TEST_USER["username"], "password": TEST_USER["password"]})
+def test_request_token(user_data):
+    response = requests.post(BASE_URL + "token/", json={"username": user_data["username"], "password": user_data["password"]})
     if response.status_code == 200:
-        print_response(response,True)
+        print(Fore.GREEN + f"Authentification réussie pour {user_data['username']}.")
         return response.json().get("access")
     else:
-        print_response(response,False)
+        print(Fore.RED + f"Échec de l'authentification de {user_data['username']}: {response.text}")
         return None
-    
+
 def test_list_users(token):
     response = requests.get(BASE_URL + "users/", headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
-        print_response(response,True)
-        for result in response.json()["results"]:
-            print(result["username"])
+        print(Fore.GREEN + "Liste des utilisateurs récupérée avec succès.")
+        for result in response.json().get("results", []):  # 👀 Assure-toi que "results" est bien la clé correcte
+            print(Fore.YELLOW + f"- {result['username']}")
     else:
-        print_response(response,False)
-        return None
+        print(Fore.RED + "Échec de la récupération des utilisateurs.")
+
 
 def test_create_project(token):
     response = requests.post(BASE_URL + "projects/", json=TEST_PROJECT, headers={"Authorization": f"Bearer {token}"})
@@ -190,17 +190,21 @@ def test_delete_comment(token, project_id, issue_id, comment_id):
 
 def main():
 
-    # 1️⃣ Créer un utilisateur
+    # 1️⃣ Saisie des informations utilisateur
     print(Fore.MAGENTA + "🟢 Test: Création d'un utilisateur...")
-    TEST_USER["username"] = input("Entrez un nom d'utilisateur: ")
-    TEST_USER["password"] = input("Entrez le mot de pass: ")
-    user_id = test_create_user()
+    
+    user_data = {
+        "username": input("Entrez un nom d'utilisateur: "),
+        "password": getpass.getpass("Entrez un mot de passe: ")
+    }
+
+    user_id = test_create_user(user_data)
     if not user_id:
         return
 
-    # 2️⃣ Récupérer le token d'authentification
+    # 2️⃣ Récupération du token
     print(Fore.MAGENTA + "🟢 Test: Récupération du token...")
-    token = test_request_token()
+    token = test_request_token(user_data)
     if not token:
         return
 
