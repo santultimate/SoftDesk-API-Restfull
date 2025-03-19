@@ -17,7 +17,5 @@ class UserViewSet(viewsets.ModelViewSet):
         if age is not None and age < 18:
             raise serializers.ValidationError("L'âge doit être supérieur ou égal à 18 ans.")
         serializer.save()
-        
-        
-        
+             
     

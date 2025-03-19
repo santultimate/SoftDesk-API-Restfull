@@ -70,7 +70,8 @@ def test_list_users(token):
 def test_create_project(token):
     response = requests.post(BASE_URL + "projects/", json=TEST_PROJECT, headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 201:
-        print_response(response,True)
+        print(Fore.GREEN + "Projet" + f"- {TEST_PROJECT['name']}"+ "créé avec succès.")
+        
         return response.json().get("id")
     else:
         print_response(response,False)
@@ -93,7 +94,7 @@ def test_add_contributor(token,project_id,user_id):
     response = requests.post(BASE_URL + f"projects/{project_id}/contributors/", json={"user":user_id,"role":"CONTRIBUTOR"}, headers
     ={"Authorization": f"Bearer {token}"})
     if response.status_code == 201:
-        #print_response(response,True)
+        print(Fore.GREEN + "L'utilisateur " + f"- {user_id}"+"est maintenant contributeur du projet"+ f"- {project_id}"+ ".")
         return True 
     else:
         #print_response(response,False)
@@ -104,7 +105,7 @@ def test_create_issue(token,project_id):
     issue["assignee"]=1
     response = requests.post(BASE_URL + f"projects/{project_id}/issues/", json=issue, headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 201:
-        print_response(response,True)
+        print(Fore.GREEN + "Issue " + f"- {TEST_ISSUE['title']}"+ " créé avec succès.")
         return response.json().get("id")
     else:
         print_response(response,False)
@@ -113,14 +114,16 @@ def test_create_issue(token,project_id):
 def test_list_issues_for_project(token,project_id):
     response = requests.get(BASE_URL + f"projects/{project_id}/issues/", headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
-        print_response(response,True)
+        print(Fore.GREEN + "Liste des issues récupérées avec succès.")
+        for result in response.json().get("results", []):  # 👀 Assure-toi que "results" est bien la clé correcte
+            print(Fore.YELLOW + f"- {result['title']}")
     else:
         print_response(response,False)
 
 def test_create_comment(token,project_id,issue_id):
     response = requests.post(BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/", json=TEST_COMMENT.copy(), headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 201:
-        print_response(response,True)
+        print(Fore.GREEN + "Commentaire créé avec succès.")
         return response.json().get("id")
     else:
         print_response(response,False)
@@ -129,7 +132,9 @@ def test_create_comment(token,project_id,issue_id):
 def test_list_comments_for_issue(token,project_id,issue_id):
     response = requests.get(BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/", headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
-        print_response(response,True)
+        print(Fore.GREEN + "Liste des commantaires récupérées avec succès.")
+        for result in response.json().get("results", []):  # 👀 Assure-toi que "results" est bien la clé correcte
+            print(Fore.YELLOW + f"- {result['description']}")
     else:
         print_response(response,False)
         
@@ -146,7 +151,7 @@ def test_edit_issue(token,project_id,issue_id):
     response = requests.put(BASE_URL + f"projects/{project_id}/issues/{issue_id}/", json=data, headers
     ={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
-        print_response(response,True)
+        print(Fore.GREEN + "Issue modifié avec succès.")
         return True
     else:
         print_response(response,False)
@@ -155,7 +160,7 @@ def test_edit_issue(token,project_id,issue_id):
 def test_delete_issue(token,project_id,issue_id):
     response = requests.delete(BASE_URL + f"projects/{project_id}/issues/{issue_id}/", headers={"Authorization": f"Bearer {token}"})
     if response.status_code == 204:
-        print_response(response,True)
+        print(Fore.GREEN + "Issue supprimé avec succès.")
         return True
     else:
         print_response(response,False)
@@ -168,7 +173,7 @@ def test_edit_comment(token,project_id,issue_id,comment_id):
     response = requests.put(BASE_URL + f"projects/{project_id}/issues/{issue_id}/comments/{comment_id}/", json=data, headers
     ={"Authorization": f"Bearer {token}"})
     if response.status_code == 200:
-        print_response(response,True)
+        print(Fore.GREEN + "Commentaire modifié avec succès.")
         return True
     else:
         print_response(response,False)
@@ -180,7 +185,7 @@ def test_delete_comment(token, project_id, issue_id, comment_id):
         headers={"Authorization": f"Bearer {token}"}
     )
     if response.status_code == 204:
-        print_response(response, True)
+        print(Fore.GREEN + "Commentaire supprimé avec succès.")
         return True
     else:
         print_response(response, False)
@@ -189,6 +194,20 @@ def test_delete_comment(token, project_id, issue_id, comment_id):
 
 
 def main():
+    print(Fore.MAGENTA + "🟢 Test: Création de plusieurs utilisateurs...")
+
+    user_tokens = {}  # Stocker les tokens de chaque utilisateur
+
+    for user_data in TEST_USER:
+        user_id = test_create_user(user_data)
+        if user_id:
+             token = test_request_token(user_data)
+             if token:
+                 user_tokens[user_data["username"]] = token
+
+    print(Fore.MAGENTA + "🟢 Test: Liste des utilisateurs avec un token valide...")
+    test_list_users(next(iter(user_tokens.values())))  # Utiliser un token valide pour récupérer la liste
+
 
     # 1️⃣ Saisie des informations utilisateur
     print(Fore.MAGENTA + "🟢 Test: Création d'un utilisateur...")
